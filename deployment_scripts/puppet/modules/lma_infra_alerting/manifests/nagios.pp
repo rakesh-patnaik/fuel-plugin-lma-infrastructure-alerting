@@ -18,6 +18,9 @@
 #
 
 class lma_infra_alerting::nagios (
+  $auth_provider,
+  $ldap_url,
+  $ldap_bind_dn,
   $http_user = $lma_infra_alerting::params::nagios_http_user,
   $http_password = $lma_infra_alerting::params::nagios_http_password,
   $http_port = $lma_infra_alerting::params::nagios_http_port,
@@ -45,10 +48,15 @@ class lma_infra_alerting::nagios (
   }
 
   class { '::nagios::cgi':
-    user      => $http_user,
-    password  => $http_password,
-    http_port => $http_port,
-    require   => Class[nagios],
+    auth_provider      => $auth_provider,
+    htaccess_user      => $http_user,
+    htaccess_password  => $http_password,
+    ldap_bind_user     => $http_user,
+    ldap_bind_password => $http_password,
+    ldap_url           => $ldap_url,
+    ldap_bind_dn       => $ldap_bind_dn,
+    http_port          => $http_port,
+    require            => Class[nagios],
   }
 
   $cron_bin = $lma_infra_alerting::params::update_configuration_script

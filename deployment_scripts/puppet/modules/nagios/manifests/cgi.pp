@@ -17,12 +17,29 @@
 # Install and configure Nagios web interface
 #
 class nagios::cgi (
-  $user = $nagios::params::cgi_user,
-  $password = $nagios::params::cgi_password,
+  $auth_provider = $nagios::params::cgi_auth_provider,
+  $htaccess_user = $nagios::params::cgi_htaccess_user,
+  $htaccess_password = $nagios::params::cgi_htaccess_password,
+  $ldap_bind_user = $nagios::params::cgi_ldap_bind_user,
+  $ldap_bind_password = $nagios::params::cgi_ldap_bind_password,
+  $ldap_url = $nagios::params::cgi_ldap_url,
+  $ldap_bind_dn = $nagios::params::cgi_ldap_bind_dn,
   $htpasswd_file = $nagios::params::cgi_htpasswd_file,
   $http_port = $nagios::params::cgi_http_port,
   $vhost_listen_ip = '*',
 ) inherits nagios::params {
+
+  case $auth_provider {
+    'htaccess': {
+      $apache_default_mods = ['php', 'cgi', 'auth_basic', 'authn_user']
+    }
+    'ldap': {
+      $apache_default_mods = ['php', 'cgi', 'auth_basic', 'ldap', 'authz_ldap']
+    }
+    default: {
+      fail('Auth provider not supported!')
+    }
+  }
 
   ## Configure apache
   class { 'apache':
@@ -32,7 +49,7 @@ class nagios::cgi (
     default_vhost       => false,
     # prerequists for Nagios CGI
     mpm_module          => 'prefork',
-    default_mods        => ['php', 'cgi', 'authn_file', 'auth_basic', 'authz_user'],
+    default_mods        => $apache_default_mods,
     # allow to use the Puppet user resource later in the manifest
     manage_group        => false,
     manage_user         => false,
@@ -55,9 +72,9 @@ class nagios::cgi (
         require => Class[apache],
       }
 
-      htpasswd { $user:
+      htpasswd { $htaccess_user:
         # TODO randomize salt?
-        cryptpasswd => ht_md5($password, 'salt'),
+        cryptpasswd => ht_md5($htaccess_password, 'salt'),
         target      => $htpasswd_file,
         require     => Package[$package_name],
       }
@@ -80,9 +97,9 @@ class nagios::cgi (
 
     }
     'Redhat': {
-      htpasswd { $user:
+      htpasswd { $htaccess_user:
         # TODO randomize salt?
-        cryptpasswd => ht_md5($password, 'salt'),
+        cryptpasswd => ht_md5($htaccess_password, 'salt'),
         target      => $htpasswd_file,
       }
     }
@@ -96,6 +113,6 @@ class nagios::cgi (
     owner   => root,
     group   => $apache_user,
     mode    => '0640',
-    require => Htpasswd[$user],
+    require => Htpasswd[$htaccess_user],
   }
 }

@@ -1,13 +1,59 @@
 attributes:
+  auth_provider:
+    type: "radio"
+    weight: 10
+    value: "htaccess"
+    label: "Authentication Provider"
+    values:
+      - data: "htaccess"
+        label: "htaccess"
+      - data: "ldap"
+        label: "ldap"
+
+  nagios_user:
+    value: 'nagiosadmin'
+    label: 'Nagios user'
+    description: 'The Username to access the Nagios Web Interface (default: "nagiosadmin")'
+    weight: 15
+    type: "text"
+    regex:
+      source: '\S'
+      error: "Invalid value"
+
   nagios_password:
     value: 'r00tme'
-    label: 'Nagios HTTP password'
-    description: 'The password to access the Nagios Web Interface (username: "nagiosadmin")'
-    weight: 42
+    label: 'Nagios password'
+    description: 'The password to access the Nagios Web Interface'
+    weight: 16
     type: "password"
     regex:
       source: '\S'
       error: "Invalid value"
+  ldap_url:
+    value: 'ldaps://yourldapserverIPorFQDN'
+    label: 'LDAP server URL'
+    description: 'LDAP Server URL (prefix ldap:// or ldaps:// for protocol)'
+    weight: 21
+    type: "text"
+    regex:
+      source: '^(ldap://|ldaps://){1}[a-zA-Z\d][a-zA-Z\d_\-.]+(:[0-9]+)?$'
+      error: 'Invalid ldap url or name'
+    restrictions:
+      - condition: "settings:lma_infrastructure_alerting.auth_provider.value != 'ldap'"
+        action: hide
+
+  ldap_bind_dn:
+    value: ''
+    label: 'Nagios ldap bind DN'
+    description: 'LDAP DN to bind with'
+    weight: 23
+    type: "text"
+    regex:
+      source: '\S'
+      error: "Invalid value"
+    restrictions:
+      - condition: "settings:lma_infrastructure_alerting.auth_provider.value != 'ldap'"
+        action: hide
 
   notify_critical:
     type: "checkbox"

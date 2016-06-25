@@ -24,7 +24,16 @@
     Allow From All
     AuthName "Nagios Access"
     AuthType Basic
+    <% if @auth_provider == 'ldap' %>
+    AuthBasicProvider ldap
+    AuthLDAPURL <%= @ldap_url %>
+    AuthLDAPBindDN <%= @ldap_bind_user %>@<%= @ldap_bind_dn %>
+    AuthLDAPBindPassword <%= @ldap_bind_password %>
+    AuthzLDAPAuthoritative on
+    <% else %>
+    AuthBasicProvider file
     AuthUserFile <%= @cgi_htpasswd_file %>
+    <% end %>
     require valid-user
   </DirectoryMatch>
 

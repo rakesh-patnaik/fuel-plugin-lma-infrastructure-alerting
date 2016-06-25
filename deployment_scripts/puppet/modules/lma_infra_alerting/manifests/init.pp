@@ -18,7 +18,11 @@
 class lma_infra_alerting (
   $openstack_management_vip = undef,
   $openstack_deployment_name = '',
+  $user = $lma_infra_alerting::params::nagios_http_user,
   $password = $lma_infra_alerting::params::nagios_http_password,
+  $auth_provider = $lma_infra_alerting::params::nagios_http_auth_provider,
+  $ldap_url = $lma_infra_alerting::params::nagios_ldap_url,
+  $ldap_bind_dn = $lma_infra_alerting::params::nagios_ldap_bind,
   $global_clusters = [],
   $node_clusters = [],
 ) inherits lma_infra_alerting::params {
@@ -34,7 +38,11 @@ class lma_infra_alerting (
 
   # Install and configure nagios server
   class { 'lma_infra_alerting::nagios':
+    http_user     => $user,
     http_password => $password,
+    auth_provider => $auth_provider,
+    ldap_url      => $ldap_url,
+    ldap_bind_dn  => $ldap_bind_dn,
   }
 
   # Purge the default configuration shipped by the distribution before applying

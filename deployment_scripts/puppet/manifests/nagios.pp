@@ -17,7 +17,12 @@ $management_vip = hiera('management_vip')
 $env_id = hiera('deployment_id')
 
 $plugin = hiera('lma_infrastructure_alerting')
+$auth_provider = $plugin['auth_provider']
 $password = $plugin['nagios_password']
+$user = $plugin['nagios_user']
+$ldap_url = $plugin['ldap_url']
+$ldap_bind_dn = $plugin['ldap_bind_dn']
+
 if $notify_warning == false and
   $notify_critical == false and
   $notify_unknown == false and
@@ -62,6 +67,10 @@ class { 'lma_infra_alerting':
   global_clusters           => $service_clusters,
   node_clusters             => $node_clusters,
   password                  => $password,
+  user                      => $user,
+  auth_provider             => $auth_provider,
+  ldap_url                  => $ldap_url,
+  ldap_bind_dn              => $ldap_bind_dn,
 }
 
 file { 'ocf-ns_apache':

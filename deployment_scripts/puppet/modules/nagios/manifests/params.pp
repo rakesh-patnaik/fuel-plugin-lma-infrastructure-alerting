@@ -47,9 +47,15 @@ class nagios::params {
     }
   }
 
-  # CGI
-  $cgi_user = 'nagiosadmin'
-  $cgi_password = undef
+  #CGI
+  $cgi_auth_provider = 'htaccess'
+  $cgi_htaccess_user = 'nagiosadmin'
+  $cgi_htaccess_password = undef
+  $cgi_ldap_bind_user = undef
+  $cgi_ldap_bind_password = undef
+  $cgi_ldap_url = undef
+  $cgi_ldap_bind_dn = undef
+
   $cgi_http_port = '80'
 
   # Nagios server configurations
